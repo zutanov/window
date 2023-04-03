@@ -1,5 +1,4 @@
-const modal = () => {
-    
+const modal = () => {    
 
 function modalAutoOpen (modal, time) {
     setTimeout(function(){
