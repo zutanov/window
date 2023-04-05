@@ -42,7 +42,7 @@ function modalOpen (trigger, modal, close) {
 
 modalOpen('.header_btn', '.popup_engineer', '.popup_engineer .popup_close');
 modalOpen('.phone_link', '.popup', '.popup .popup_close');
-modalAutoOpen('.popup', 3000);
+//modalAutoOpen('.popup', 60000);
 
 // const res = fetch('POST', './src/server.php')
 //     .then()
