@@ -14096,16 +14096,81 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _slider__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./slider */ "./src/js/slider.js");
 /* harmony import */ var _modules_modal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/modal */ "./src/js/modules/modal.js");
 /* harmony import */ var _modules_tabs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/tabs */ "./src/js/modules/tabs.js");
+/* harmony import */ var _modules_forms__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/forms */ "./src/js/modules/forms.js");
+
 
 
 
 
 
 window.addEventListener('DOMContentLoaded', () => {
+  'use strict';
+
   Object(_modules_modal__WEBPACK_IMPORTED_MODULE_1__["default"])();
   Object(_modules_tabs__WEBPACK_IMPORTED_MODULE_2__["default"])('.glazing_slider', '.glazing_block', '.glazing_content', 'active');
   Object(_modules_tabs__WEBPACK_IMPORTED_MODULE_2__["default"])('.decoration_slider', '.no_click', '.decoration_content > div > div', 'after_click');
+  Object(_modules_forms__WEBPACK_IMPORTED_MODULE_3__["default"])();
 });
+
+/***/ }),
+
+/***/ "./src/js/modules/forms.js":
+/*!*********************************!*\
+  !*** ./src/js/modules/forms.js ***!
+  \*********************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+function forms() {
+  const form = document.querySelectorAll('form'),
+    // получаем все формы на странице
+    inputs = document.querySelectorAll('input'),
+    // получаем все инпуты, чтобы очищать после отправки
+    phoneInput = document.querySelectorAll('input[name="user_phone"]');
+  phoneInput.forEach(el => {
+    el.addEventListener('input', () => {
+      el.value = el.value.replace(/\D/, '');
+    });
+  });
+  const message = {
+    loading: 'Загрузка...',
+    success: 'Отправлено',
+    fail: 'Что-то пошло не так...'
+  };
+  const postData = async (url, data) => {
+    document.querySelector('.status').textContent = message.loading;
+    let res = await fetch(url, {
+      method: "POST",
+      body: data
+    });
+    return await res.text();
+  };
+  const clearInputs = () => {
+    inputs.forEach(el => el.value = '');
+  };
+  form.forEach(el => {
+    el.addEventListener('submit', e => {
+      e.preventDefault();
+      let info = document.createElement('div');
+      info.classList.add('status');
+      el.appendChild(info);
+      const formData = new FormData(el);
+      postData('assets/server.php', formData).then(res => {
+        console.log(res);
+        info.textContent = message.success;
+      }).catch(() => info.textContent = message.fail).finally(() => {
+        clearInputs();
+        setTimeout(() => {
+          info.remove();
+        }, 4000);
+      });
+    });
+  });
+}
+;
+/* harmony default export */ __webpack_exports__["default"] = (forms);
 
 /***/ }),
 
@@ -14160,9 +14225,6 @@ const modal = () => {
   modalOpen('.header_btn', '.popup_engineer', '.popup_engineer .popup_close');
   modalOpen('.phone_link', '.popup', '.popup .popup_close');
   //modalAutoOpen('.popup', 60000);
-
-  // const res = fetch('POST', './src/server.php')
-  //     .then()
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (modal);
@@ -14182,30 +14244,35 @@ const tabs = (headerSelector, tabSelector, contentSelector, activeClass) => {
   const header = document.querySelector(headerSelector),
     tab = document.querySelectorAll(tabSelector),
     content = document.querySelectorAll(contentSelector);
-  function hideTabContent() {
-    tab.forEach(el => el.classList.remove(activeClass));
-    content.forEach(el => el.style.display = 'none');
-  }
-  function showTabContent() {
-    let i = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-    content[i].style.display = 'block';
-    tab[i].classList.add(activeClass);
-  }
-  header.addEventListener('click', e => {
-    const target = e.target;
-    console.log(tabSelector.slice(1));
-    if (target && target.classList.contains(tabSelector.slice(1)) || target.parentNode.classList.contains(tabSelector.slice(1))) {
-      tab.forEach((el, i) => {
-        if (target == el || target.parentNode == el) {
-          hideTabContent();
-          showTabContent(i);
-        }
-      });
-    }
-  });
-  hideTabContent();
-  showTabContent();
+
+  // function hideTabContent() {
+  //     tab.forEach(el => el.classList.remove(activeClass));
+
+  //     content.forEach(el => el.style.display = 'none');
+  // }
+
+  // function showTabContent(i = 0) {
+  //     content[i].style.display = 'block';
+  //     tab[i].classList.add(activeClass);
+  // }
+
+  // header.addEventListener('click', (e) => {
+  //     const target = e.target;
+  //     if(target && target.classList.contains(tabSelector.slice(1)) ||
+  //        target.parentNode.classList.contains(tabSelector.slice(1)) ) {
+  //         tab.forEach((el,i) => {
+  //             if(target == el || target.parentNode == el) {
+  //                 hideTabContent();
+  //                 showTabContent(i);
+  //             }
+  //         })
+  //     }     
+  // })
+
+  // hideTabContent();
+  // showTabContent()
 };
+
 /* harmony default export */ __webpack_exports__["default"] = (tabs);
 
 /***/ }),

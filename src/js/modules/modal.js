@@ -44,9 +44,6 @@ modalOpen('.header_btn', '.popup_engineer', '.popup_engineer .popup_close');
 modalOpen('.phone_link', '.popup', '.popup .popup_close');
 //modalAutoOpen('.popup', 60000);
 
-// const res = fetch('POST', './src/server.php')
-//     .then()
-
 };
 
 export default modal;

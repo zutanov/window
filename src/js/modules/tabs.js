@@ -3,37 +3,33 @@ const tabs = (headerSelector, tabSelector, contentSelector, activeClass) => {
           tab = document.querySelectorAll(tabSelector),
           content = document.querySelectorAll(contentSelector);
 
-    function hideTabContent() {
-        tab.forEach(el => el.classList.remove(activeClass));
+    // function hideTabContent() {
+    //     tab.forEach(el => el.classList.remove(activeClass));
 
-        content.forEach(el => el.style.display = 'none');
-    }
+    //     content.forEach(el => el.style.display = 'none');
+    // }
     
-    function showTabContent(i = 0) {
-        content[i].style.display = 'block';
-        tab[i].classList.add(activeClass);
-    }
+    // function showTabContent(i = 0) {
+    //     content[i].style.display = 'block';
+    //     tab[i].classList.add(activeClass);
+    // }
 
-    header.addEventListener('click', (e) => {
-        const target = e.target;
-        console.log(tabSelector.slice(1))
-        if(target && target.classList.contains(tabSelector.slice(1)) ||
-           target.parentNode.classList.contains(tabSelector.slice(1)) ) {
-            tab.forEach((el,i) => {
-                if(target == el || target.parentNode == el) {
-                    hideTabContent();
-                    showTabContent(i);
-                }
-            })
-        }    
-    
-    
-    })
+    // header.addEventListener('click', (e) => {
+    //     const target = e.target;
+    //     if(target && target.classList.contains(tabSelector.slice(1)) ||
+    //        target.parentNode.classList.contains(tabSelector.slice(1)) ) {
+    //         tab.forEach((el,i) => {
+    //             if(target == el || target.parentNode == el) {
+    //                 hideTabContent();
+    //                 showTabContent(i);
+    //             }
+    //         })
+    //     }     
+    // })
 
-    hideTabContent();
-    showTabContent()
-    
-            
+    // hideTabContent();
+    // showTabContent()
+                
 };
 
 
