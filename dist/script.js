@@ -14097,6 +14097,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_modal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/modal */ "./src/js/modules/modal.js");
 /* harmony import */ var _modules_tabs__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/tabs */ "./src/js/modules/tabs.js");
 /* harmony import */ var _modules_forms__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/forms */ "./src/js/modules/forms.js");
+/* harmony import */ var _modules_changeModalState__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/changeModalState */ "./src/js/modules/changeModalState.js");
+
 
 
 
@@ -14106,11 +14108,92 @@ __webpack_require__.r(__webpack_exports__);
 window.addEventListener('DOMContentLoaded', () => {
   'use strict';
 
+  let modalState = {};
+  Object(_modules_changeModalState__WEBPACK_IMPORTED_MODULE_4__["default"])(modalState);
   Object(_modules_modal__WEBPACK_IMPORTED_MODULE_1__["default"])();
   Object(_modules_tabs__WEBPACK_IMPORTED_MODULE_2__["default"])('.glazing_slider', '.glazing_block', '.glazing_content', 'active');
   Object(_modules_tabs__WEBPACK_IMPORTED_MODULE_2__["default"])('.decoration_slider', '.no_click', '.decoration_content > div > div', 'after_click');
-  Object(_modules_forms__WEBPACK_IMPORTED_MODULE_3__["default"])();
+  Object(_modules_tabs__WEBPACK_IMPORTED_MODULE_2__["default"])('.balcon_icons', '.balcon_icons_img', '.big_img > img', 'do_image_more', 'inline-block');
+  Object(_modules_forms__WEBPACK_IMPORTED_MODULE_3__["default"])(modalState);
 });
+
+/***/ }),
+
+/***/ "./src/js/modules/changeModalState.js":
+/*!********************************************!*\
+  !*** ./src/js/modules/changeModalState.js ***!
+  \********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _checkNumbInputs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./checkNumbInputs */ "./src/js/modules/checkNumbInputs.js");
+
+const changeModalState = state => {
+  const windowForm = document.querySelectorAll('.balcon_icons_img'),
+    windowWidth = document.querySelectorAll('#width'),
+    windowHeight = document.querySelectorAll('#height'),
+    windowType = document.querySelectorAll('#view_type'),
+    windowProfile = document.querySelectorAll('.checkbox');
+  Object(_checkNumbInputs__WEBPACK_IMPORTED_MODULE_0__["default"])('#width');
+  Object(_checkNumbInputs__WEBPACK_IMPORTED_MODULE_0__["default"])('#height');
+  function bindActionToElems(event, elem, prop) {
+    elem.forEach((el, i) => {
+      el.addEventListener(event, () => {
+        switch (el.nodeName) {
+          case 'SPAN':
+            state[prop] = i;
+            break;
+          case 'INPUT':
+            if (el.getAttribute('type') === 'checkbox') {
+              i === 0 ? state[prop] = 'Холодная' : state[prop] = "Теплое";
+              elem.forEach((box, j) => {
+                box.checked = false;
+                if (i == j) {
+                  box.checked = true;
+                }
+              });
+            } else {
+              state[prop] = el.value;
+            }
+            break;
+          case 'SELECT':
+            state[prop] = el.value;
+            break;
+        }
+        console.log(state);
+      });
+    });
+  }
+  bindActionToElems('click', windowForm, 'form');
+  bindActionToElems('input', windowHeight, 'height');
+  bindActionToElems('input', windowWidth, 'width');
+  bindActionToElems('change', windowType, 'type');
+  bindActionToElems('change', windowProfile, 'profile');
+};
+/* harmony default export */ __webpack_exports__["default"] = (changeModalState);
+
+/***/ }),
+
+/***/ "./src/js/modules/checkNumbInputs.js":
+/*!*******************************************!*\
+  !*** ./src/js/modules/checkNumbInputs.js ***!
+  \*******************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+const checkNumbInputs = selector => {
+  const numbInputs = document.querySelectorAll(selector);
+  numbInputs.forEach(el => {
+    el.addEventListener('input', () => {
+      el.value = el.value.replace(/\D/, '');
+    });
+  });
+};
+/* harmony default export */ __webpack_exports__["default"] = (checkNumbInputs);
 
 /***/ }),
 
@@ -14123,17 +14206,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-function forms() {
+/* harmony import */ var _checkNumbInputs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./checkNumbInputs */ "./src/js/modules/checkNumbInputs.js");
+
+function forms(state) {
   const form = document.querySelectorAll('form'),
     // получаем все формы на странице
-    inputs = document.querySelectorAll('input'),
-    // получаем все инпуты, чтобы очищать после отправки
-    phoneInput = document.querySelectorAll('input[name="user_phone"]');
-  phoneInput.forEach(el => {
-    el.addEventListener('input', () => {
-      el.value = el.value.replace(/\D/, '');
-    });
-  });
+    inputs = document.querySelectorAll('input'); // получаем все инпуты, чтобы очищать после отправки
+
+  Object(_checkNumbInputs__WEBPACK_IMPORTED_MODULE_0__["default"])('input[name="user_phone"]');
   const message = {
     loading: 'Загрузка...',
     success: 'Отправлено',
@@ -14157,6 +14237,11 @@ function forms() {
       info.classList.add('status');
       el.appendChild(info);
       const formData = new FormData(el);
+      if (el.getAttribute('data-calc') === 'end') {
+        for (let key in state) {
+          formData.append(key, state[key]);
+        }
+      }
       postData('assets/server.php', formData).then(res => {
         console.log(res);
         info.textContent = message.success;
@@ -14193,14 +14278,19 @@ const modal = () => {
     }, time);
   }
   function modalOpen(trigger, modal, close) {
+    let closeClickOverlay = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
     const modalTrigger = document.querySelectorAll(trigger);
     const modalWindow = document.querySelector(modal);
     const modalClose = document.querySelector(close);
+    const windows = document.querySelectorAll('[data-modal]');
     modalTrigger.forEach(el => {
       el.addEventListener('click', e => {
         if (e.target) {
           e.preventDefault();
         }
+        windows.forEach(el => {
+          el.style.display = 'none';
+        });
         modalWindow.style.display = 'block';
         document.body.style.overflow = 'hidden';
         // document.body.classList.add('modal-open');
@@ -14208,13 +14298,19 @@ const modal = () => {
     });
 
     modalClose.addEventListener('click', e => {
+      windows.forEach(el => {
+        el.style.display = 'none';
+      });
       modalWindow.style.display = 'none';
       document.body.style.overflow = '';
       //    document.body.classList.remove('modal-open');  
     });
 
     modalWindow.addEventListener('click', e => {
-      if (e.target === modalWindow) {
+      if (e.target === modalWindow && closeClickOverlay) {
+        windows.forEach(el => {
+          el.style.display = 'none';
+        });
         modalWindow.style.display = 'none';
         document.body.style.overflow = '';
         //    document.body.classList.remove('modal-open');
@@ -14224,6 +14320,9 @@ const modal = () => {
 
   modalOpen('.header_btn', '.popup_engineer', '.popup_engineer .popup_close');
   modalOpen('.phone_link', '.popup', '.popup .popup_close');
+  modalOpen('.popup_calc_btn', '.popup_calc', '.popup_calc_close');
+  modalOpen('.popup_calc_button', '.popup_calc_profile', '.popup_calc_profile_close', false);
+  modalOpen('.popup_calc_profile_button', '.popup_calc_end', '.popup_calc_end_close', false);
   //modalAutoOpen('.popup', 60000);
 };
 
@@ -14240,39 +14339,34 @@ const modal = () => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-const tabs = (headerSelector, tabSelector, contentSelector, activeClass) => {
+const tabs = function (headerSelector, tabSelector, contentSelector, activeClass) {
+  let display = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 'block';
   const header = document.querySelector(headerSelector),
     tab = document.querySelectorAll(tabSelector),
     content = document.querySelectorAll(contentSelector);
-
-  // function hideTabContent() {
-  //     tab.forEach(el => el.classList.remove(activeClass));
-
-  //     content.forEach(el => el.style.display = 'none');
-  // }
-
-  // function showTabContent(i = 0) {
-  //     content[i].style.display = 'block';
-  //     tab[i].classList.add(activeClass);
-  // }
-
-  // header.addEventListener('click', (e) => {
-  //     const target = e.target;
-  //     if(target && target.classList.contains(tabSelector.slice(1)) ||
-  //        target.parentNode.classList.contains(tabSelector.slice(1)) ) {
-  //         tab.forEach((el,i) => {
-  //             if(target == el || target.parentNode == el) {
-  //                 hideTabContent();
-  //                 showTabContent(i);
-  //             }
-  //         })
-  //     }     
-  // })
-
-  // hideTabContent();
-  // showTabContent()
+  function hideTabContent() {
+    tab.forEach(el => el.classList.remove(activeClass));
+    content.forEach(el => el.style.display = 'none');
+  }
+  function showTabContent() {
+    let i = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+    content[i].style.display = display;
+    tab[i].classList.add(activeClass);
+  }
+  header.addEventListener('click', e => {
+    const target = e.target;
+    if (target && target.classList.contains(tabSelector.slice(1)) || target.parentNode.classList.contains(tabSelector.slice(1))) {
+      tab.forEach((el, i) => {
+        if (target == el || target.parentNode == el) {
+          hideTabContent();
+          showTabContent(i);
+        }
+      });
+    }
+  });
+  hideTabContent();
+  showTabContent();
 };
-
 /* harmony default export */ __webpack_exports__["default"] = (tabs);
 
 /***/ }),

@@ -1,13 +1,10 @@
-function forms() {
+import checkNumbInputs from "./checkNumbInputs";
+
+function forms(state) {
     const form = document.querySelectorAll('form'),       // получаем все формы на странице
-          inputs = document.querySelectorAll('input'),    // получаем все инпуты, чтобы очищать после отправки
-          phoneInput = document.querySelectorAll('input[name="user_phone"]');
+          inputs = document.querySelectorAll('input');    // получаем все инпуты, чтобы очищать после отправки
           
-    phoneInput.forEach(el => {
-        el.addEventListener('input', () => {
-            el.value = el.value.replace(/\D/, '');
-        });
-    });
+    checkNumbInputs('input[name="user_phone"]');
 
     const message = {
         loading: 'Загрузка...',
@@ -38,6 +35,11 @@ function forms() {
             el.appendChild(info);
             
             const formData = new FormData(el);
+            if(el.getAttribute('data-calc') === 'end') {
+                for( let key in state) {
+                    formData.append(key, state[key]);
+                }
+            }
 
             postData('assets/server.php', formData)
                 .then(res => {
